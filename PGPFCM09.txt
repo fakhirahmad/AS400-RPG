@@ -1,0 +1,11 @@
+             PGM
+             DCL        VAR(&LIBR  ) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ANSWER) TYPE(*CHAR) LEN(1)
+             CALL       PGM(SDP2VAL) PARM(&ANSWER)
+             IF         COND(&ANSWER *EQ N) THEN(GOTO +
+                          CMDLBL(END))
+
+             CALL       PGM(PGPFCM0901)
+             CALL       PGM(PGPFCM10)
+ END:        ENDPGM
+

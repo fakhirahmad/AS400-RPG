@@ -1,0 +1,63 @@
+     F********************************************************************
+     F*            E A T O N    C U T L E R - H A M M E R                *
+     F********************************************************************
+     F* FUNCTION    -  SELECT OBJECTS TO BE RESTORED                     *
+     F* PROGRAM ID  -  PGPFCM1102                                        *
+     F* CODED BY    -  FAKHIR AHMAD                                      *
+     F* DATE        -  JULY 2003                                    *
+     F* PROCEDURES  -                                                    *
+     F********************************************************************
+     FPGPFCM11L1IF   E           K DISK
+     F**  OBJECTS TO BE RESTORED FILE PGPFCM11
+     DDATE_DS          DS
+     DDATE                     1      8
+     DMONTH                    1      2
+     DSEP1                     3      3
+     DDAY                      4      5
+     DSEP2                     6      6
+     DYEAR                     7      8
+
+     C     KEY           KLIST
+     C                   KFLD                    KOBJ             10
+     C                   KFLD                    KTYPE             8
+     C                   KFLD                    KATTR            10
+     C                   EXSR      SR010
+     C                   EXSR      SR030
+     C                   MOVE      '1'           *INLR
+     C***************************************************
+     C***********  LOADING SUBFILE
+     C****************************************************
+     C     SR010         BEGSR
+     C                   DOW       NOT %EOF(PGPFCM11L1)
+     C                   READ      PGPFCM11L1
+     C                   IF        NOT %EOF(PGPFCM11L1)
+     C                   EXSR      SR020
+     c                   ENDIF
+     C                   ENDDO
+     C                   ENDSR
+     C***************************************************
+     C** SAVE OBJECTS TO TRANSFER LIB AND BACKUP OBJS TO BE RESTORED
+     C****************************************************
+     C     SR020         BEGSR
+     C                   IF        PGOBJA = 'PF' AND PGDATA = 'Y'
+     C                   CALL      'PGPFCM11A'
+     C                   PARM                    PGSITE
+     C                   PARM                    PGOBJE
+     C                   PARM                    PGOBJT
+     C                   PARM                    PGDLIB
+     C                   ELSE
+     C                   CALL      'PGPFCM11B'
+     C                   PARM                    PGSITE
+     C                   PARM                    PGOBJE
+     C                   PARM                    PGOBJT
+     C                   PARM                    PGDLIB
+     C                   ENDIF
+     C                   ENDSR
+     C***************************************************
+     C** SAVES OBJECTS TO SAVE FILE
+     C****************************************************
+     C     SR030         BEGSR
+     C                   CALL      'PGPFCM11C'
+     C                   PARM                    PGSITE
+     C                   ENDSR
+

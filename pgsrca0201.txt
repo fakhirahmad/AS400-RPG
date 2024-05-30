@@ -1,0 +1,557 @@
+     F*        EATON CUTLER HAMMER                                       *
+     F********************************************************************
+     F* FUNCTION    -  Creates calling list from sources                 *
+     F* PROGRAM ID  -  PGSRCA0102                                        *
+     F* CODED BY    -  FAKHIR AHMAD                                      *
+     F* DATE        -  05/01/03                                          *
+      *                                                                  *
+cam1  *  Changed by:  Cheryl Maurer
+      *  Date:        06/30/2003
+      *  Reason:      Expand KBDTA001 to 1024 characters.
+      *                                                                  *
+     F********************************************************************
+     FPGSRCA1B  IF   F  132        DISK
+     FPGMAIN01  UF A E           K DISK
+     D PNA             S              1    DIM(132) CTDATA PERRCD(1)
+     D                 DS
+     D  DSSTMT                 1    132
+     IPGSRCA1B  NS
+     I                                  1    6  MEMB
+     I                                  1    4  FILE
+     I                                  1    4  TYPE
+     I                                  1    4  TXT
+     I                                  9   10  STMTNO
+     I                                  2   11  CLCMD
+     I                                  3    9  LIB
+     I                                 14   16  CMD
+     I                                 18   18  CS
+     I                                 18   18  F
+     I                                 19   19  AST
+     I                                 19   28  CDPFLE
+     I                                 19   26  CDPFRG
+     I                                 27   36  CTYPE
+     I                                 27   36  CPGM
+     I                                 27   36  CFILE
+     I                                 29   38  CLIB
+     I                                 27   76  CTEXT
+     I                                 27   28  FM2
+     I                                 29   30  FM
+     I                                 38   41  CALL
+     I                                 40   43  CALL2
+     I                                 45   58  CDPGLE
+     I                                 48   48  DSK
+     I                                 52   52  DSK2
+     I                                 45   54  CDPRPG
+     I                                 74  121  CMDTXT
+     I                                  1  132  STMT
+     I                                 11  132  STMT2
+     C                   EXSR      SR010
+     C                   MOVE      '1'           *INLR
+     C***********************************************************
+     C** MAIN ROUTINE
+     C***********************************************************
+     C     SR010         BEGSR
+     C     *IN21         DOWEQ     '0'
+     C                   READ      PGSRCA1B                               21
+     C     *IN21         IFEQ      '0'
+     C                   EXSR      SR015
+     C                   END
+     C                   ENDDO
+     C                   ENDSR
+     C****************************************************
+     C***** CHECKING FOR CALLING MEMBER TYPE
+     C****************************************************
+     C     SR015         BEGSR
+     C                   MOVE      '0'           *IN15
+     C*
+     C     F             IFEQ      'F'
+     C     DSK           ANDEQ     'D'
+     C                   MOVE      '1'           *IN15
+     C                   END
+     C*
+     C     F             IFEQ      'F'
+     C     DSK           ANDEQ     'W'
+     C                   MOVE      '1'           *IN15
+     C                   END
+     C     F             IFEQ      'F'
+     C     DSK2          ANDEQ     'D'
+     C                   MOVE      '1'           *IN15
+     C                   END
+     C*
+     C     F             IFEQ      'F'
+     C     DSK2          ANDEQ     'W'
+     C                   MOVE      '1'           *IN15
+     C                   END
+     C*
+     C     MEMB          IFEQ      'Member'
+     C                   MOVEL     CPGM          CLLPG
+     C                   END
+     C     FILE          IFEQ      'File'
+     C                   MOVEL     CFILE         CLLSRC
+     C                   END
+     C     LIB           IFEQ      'Library'
+     C                   MOVEL     CLIB          CLLLIB
+     C                   END
+     C     TYPE          IFEQ      'Type'
+     C                   MOVEL     CTYPE         ATTRLL
+     C                   MOVEL     CTYPE         CTYPEV           10
+     C                   END
+     C     TXT           IFEQ      'Text'
+     C                   MOVEL     CTEXT         CLLDES
+     C                   END
+     C     CTYPEV        IFEQ      'CLP       '
+     C                   EXSR      SR020
+     C                   END
+     C     CTYPEV        IFEQ      'CLP       '
+     C     *IN22         ANDEQ     '0'
+     C                   EXSR      SR025
+     C                   END
+     C     CTYPEV        IFEQ      'RPGLE     '
+     C     *IN15         ANDNE     '1'
+     C                   EXSR      SR030
+     C                   END
+     C     CTYPEV        IFEQ      'RPGLE     '
+     C     *IN15         ANDEQ     '1'
+     C                   EXSR      SR050
+     C                   END
+     C     CTYPEV        IFEQ      'RPG       '
+     C     *IN15         ANDNE     '1'
+     C                   EXSR      SR040
+     C                   END
+     C     CTYPEV        IFEQ      'RPG       '
+     C     *IN15         ANDEQ     '1'
+     C                   EXSR      SR050
+     C                   END
+     C     CMD           IFEQ      'CMD'
+     C                   EXSR      SR060
+     C                   END
+     C                   ENDSR
+     C*********************************************************************
+     C****CL CALL SCANNING
+     C*********************************************************************
+     C     SR020         BEGSR
+     C                   MOVEA     *BLANKS       PNA
+     C                   MOVE      STMT          DSSTMT
+     C                   MOVEA     DSSTMT        PNA
+     C                   Z-ADD     0             X                 3 0
+     C                   Z-ADD     0             Y                 3 0
+     C                   Z-ADD     0             A                 3 0
+     C                   Z-ADD     0             B                 3 0
+     C                   Z-ADD     0             C                 3 0
+     C                   Z-ADD     0             D                 3 0
+     C****
+     C***** INDICATORS USED *********
+     C*  *IN22 RECOGNIZES THE 'CALL'
+     C*  *IN23 RECOGNIZES THE 'PGM'
+     C*  *IN24 RECOGNIZES THE FIRST ' ' AFTER CALL - NO PGM
+     C*  *IN25 RECOGNIZES THE CHARACTER AFTER *IN24 IS '1'
+     C*  *IN26 RECOGNIZES THE FIRST ' ' AFTER *IN25 IS '1'
+     C*  *IN27 RECOGNIZES THE FIRST BRACKET '('
+     C*  *IN28 RECOGNIZES THE SECOND BRACKET ')'
+     C************************************************************
+     C                   MOVE      '0'           *IN52
+     C                   MOVE      '0'           *IN22
+     C                   MOVE      '0'           *IN23
+     C                   MOVE      '0'           *IN27
+     C                   MOVE      '0'           *IN28
+     C                   MOVE      '0'           *IN24
+     C                   MOVE      '0'           *IN25
+     C                   MOVE      '0'           *IN26
+     C                   Z-ADD     0             X                 3 0
+     C****
+     C************************************************
+     C     1             DO        132           X
+     C*********************************************
+     C                   EVAL      Y = X+1
+     C     PNA(X)        IFEQ      '/'
+     C     PNA(Y)        ANDEQ     '*'
+     C                   SETON                                        52
+     C                   END
+     C                   EVAL      A = X+1
+     C                   EVAL      B = X+2
+     C                   EVAL      C = X+3
+     C                   EVAL      D = X+4
+     C     PNA(X)        IFEQ      'C'
+     C     PNA(A)        ANDEQ     'A'
+     C     PNA(B)        ANDEQ     'L'
+     C     PNA(C)        ANDEQ     'L'
+     C     PNA(D)        ANDEQ     ' '
+     C                   MOVE      '1'           *IN22
+     C                   END
+     C******
+     C     *IN22         IFEQ      '1'
+     C     PNA(X)        ANDEQ     'P'
+     C     PNA(A)        ANDEQ     'G'
+     C     PNA(B)        ANDEQ     'M'
+     C                   MOVE      '1'           *IN23
+     C                   END
+     C*****
+     C**** FIRST '('
+     C     PNA(X)        IFEQ      '('
+     C     *IN22         ANDEQ     '1'
+     C     *IN23         ANDEQ     '1'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   MOVE      '1'           *IN27
+     C                   END
+     C**** SECOND ')'
+     C     *IN22         IFEQ      '1'
+     C     *IN23         ANDEQ     '1'
+     C     *IN27         ANDEQ     '1'
+     C     PNA(X)        ANDEQ     ')'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   MOVE      '1'           *IN28
+     C                   END
+     C*** IF NO PGM DEFINED
+     C     *IN22         IFEQ      '1'
+     C     *IN23         ANDEQ     '0'
+     C     PNA(X)        ANDEQ     ' '
+     C                   MOVE      '1'           *IN24
+     C                   END
+     C     *IN24         IFEQ      '1'
+     C     *IN23         ANDEQ     '0'
+     C     PNA(X)        ANDNE     ' '
+     C                   MOVE      '1'           *IN25
+     C                   END
+     C     *IN25         IFEQ      '1'
+     C     PNA(X)        ANDEQ     ' '
+     C                   MOVE      '1'           *IN26
+     C                   END
+     C*
+     C***** MOVING BLANKS
+     C*
+     C     *IN27         IFEQ      '0'
+     C     *IN25         ANDEQ     '0'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   END
+     C     *IN27         IFEQ      '1'
+     C     *IN28         ANDEQ     '1'
+     C     *IN25         ANDEQ     '0'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   END
+     C**
+     C     *IN26         IFEQ      '1'
+     C     *IN25         ANDEQ     '1'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   END
+     C***
+     C*
+     C                   ENDDO
+     C*****
+     C                   MOVEA     PNA           DSSTMT
+     C                   EVAL      DSSTMT = %TRIM(DSSTMT)
+     C                   MOVEL     DSSTMT        CLDPG
+     C********************
+     C     STMTNO        IFGE      '00'
+     C     STMTNO        ANDLE     '99'
+     C     *IN52         ANDEQ     '0'
+     C     *IN22         ANDEQ     '1'
+     C***
+     C                   MOVEL     '*PGM'        TYPELD
+     C                   EXSR      SR065
+     C                   EXSR      SR070
+     C                   EXSR      SR080
+     C                   END
+     C                   ENDSR
+     C*
+     C***************************************
+     C* FOR COMMANDS WITHIN CL  SR025
+     C**************************************
+     C     SR025         BEGSR
+     C     STMTNO        IFGE      '00'
+     C     STMTNO        ANDLE     '99'
+     C     *IN52         ANDEQ     '0'
+     C     *IN22         ANDEQ     '0'
+     C** ROUTINE FOR COMMANDS WITHIN CL
+     C*** COMMANDS IN CL
+     C                   MOVEA     *BLANKS       PNA
+     C                   MOVE      *BLANKS       DSSTMT
+     C                   MOVE      STMT2         DSSTMT
+     C                   MOVEA     DSSTMT        PNA
+     C                   MOVE      '0'           *IN96
+     C                   MOVE      '0'           *IN97
+     C                   MOVE      '0'           *IN98
+     C                   MOVE      '0'           *IN99
+     C*
+     C     1             DO        132           X
+     C     PNA(X)        IFNE      ' '
+     C     PNA(X)        ANDNE     '?'
+     C                   MOVE      '1'           *IN97
+     C                   END
+     C***
+     C     PNA(X)        IFNE      ' '
+     C     PNA(X)        ANDEQ     '?'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   MOVE      '1'           *IN96
+     C                   END
+     C****
+     C     *IN96         IFEQ      '1'
+     C     PNA(X)        ANDNE     ' '
+     C                   MOVE      '1'           *IN97
+     C                   END
+     C***
+     C     *IN97         IFEQ      '1'
+     C     PNA(X)        ANDEQ     ' '
+     C                   MOVE      '1'           *IN98
+     C                   END
+     C
+     C     *IN98         IFEQ      '1'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   END
+     C                   ENDDO
+     C*****
+     C                   MOVEA     PNA           DSSTMT
+     C                   EVAL      DSSTMT = %TRIM(DSSTMT)
+     C                   MOVEL     DSSTMT        CLDPG
+     C********************
+     C***
+     C                   MOVEL     CLDPG         PGM
+     C                   MOVEL     '*CMD'        OBJTPV
+     C                   MOVE      *BLANKS       OBJATR
+     C                   MOVE      *BLANKS       DES
+     C                   MOVE      *BLANKS       LIBR
+     C                   CALL      'PGSRCA102A'
+     C                   PARM                    PGM              10
+     C                   PARM                    OBJTPV            8
+     C                   PARM                    LIBR             10
+     C                   PARM                    DES              50
+     C                   PARM                    OBJATR           10
+     C*
+     C*** VALIDATION  COMMAND NOT FOUND
+     C                   MOVE      *BLANKS       ERROR             5
+     C                   EVAL      ERROR = %SUBST(DES:1:5)
+     C     ERROR         IFEQ      'Error'
+     C                   MOVE      '1'           *IN99
+     C                   END
+     C*
+     C*** VALIDATION LIBRBARY
+     C*
+     C     *DTAARA       DEFINE    KBDTA001      KBDATA         1024
+     C                   IN        KBDATA
+     C     10            SUBST     KBDATA:60     LIB1             10
+     C     10            SUBST     KBDATA:70     LIB2             10
+     C     10            SUBST     KBDATA:70     LIB3             10
+     C**
+     C     *IN99         IFEQ      '0'
+     C     LIBR          IFEQ      LIB1
+     C     LIBR          OREQ      LIB2
+     C     LIBR          OREQ      LIB3
+     C                   MOVE      'VALID'       STATUS           10
+     C                   ELSE
+     C                   MOVE      '1'           *IN99
+     C                   END
+     C                   END
+     C*
+     C     *IN99         IFEQ      '0'
+     C                   MOVEL     DES           CLDDES
+     C                   MOVEL     OBJATR        ATTRLD
+     C                   MOVEL     OBJTPV        TYPELD
+     C                   MOVEL     LIBR          CLDLIB
+     C                   EXSR      SR065
+     C                   EXSR      SR080
+     C                   END
+     C                   END
+     C                   ENDSR
+     C******************************************************
+     C** SUBROUTINE TO  SCAN RPGLE
+     C******************************************************
+     C     SR030         BEGSR
+     C                   MOVEA     *BLANKS       PNA
+     C                   MOVE      *BLANKS       DSSTMT
+     C                   MOVEL     CDPGLE        DSSTMT
+     C                   MOVEA     DSSTMT        PNA
+     C     CS            IFEQ      'C'
+     C     CALL          ANDEQ     'CALL'
+     C     AST           ANDNE     '*'
+     C                   Z-ADD     0             X                 3 0
+     C                   MOVE      '0'           *IN30
+     C                   MOVE      '0'           *IN31
+     C                   MOVE      '0'           *IN32
+     C
+     C     1             DO        14            X
+     C*
+     C     PNA(1)        IFNE      ''''
+     C                   SETON                                        30
+     C                   END
+     C**** SECOND '
+     C     PNA(X)        IFEQ      ''''
+     C     *IN31         ANDEQ     '1'
+     C                   SETON                                        32
+     C                   END
+     C**** FIRST '
+     C     PNA(X)        IFEQ      ''''
+     C                   SETON                                        31
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   END
+     C***** MOVING BLANKS
+     C*
+     C     *IN31         IFEQ      '0'
+     C     *IN30         ANDEQ     '0'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   END
+     C     *IN31         IFEQ      '1'
+     C     *IN32         ANDEQ     '1'
+     C     *IN30         ANDEQ     '0'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   END
+     C                   ENDDO
+     C                   MOVEA     PNA           DSSTMT
+     C                   EVAL      DSSTMT = %TRIM(DSSTMT)
+     C                   MOVEL     DSSTMT        CLDPG
+     C                   EXSR      SR065
+     C                   EXSR      SR070
+     C                   EXSR      SR080
+     C                   ENDIF
+     C                   ENDSR
+     C******************************************************
+     C** SUBROUTINE TO  SCAN RPG
+     C******************************************************
+     C     SR040         BEGSR
+     C*****
+     C                   MOVEA     *BLANKS       PNA
+     C                   MOVE      *BLANKS       DSSTMT
+     C                   MOVEL     CDPRPG        DSSTMT
+     C                   MOVEA     DSSTMT        PNA
+     C     CS            IFEQ      'C'
+     C     CALL2         ANDEQ     'CALL'
+     C     AST           ANDNE     '*'
+     C                   Z-ADD     0             X                 3 0
+     C                   MOVE      '0'           *IN40
+     C                   MOVE      '0'           *IN41
+     C                   MOVE      '0'           *IN42
+     C
+     C     1             DO        10            X
+     C*
+     C     PNA(1)        IFNE      ''''
+     C                   SETON                                        40
+     C                   END
+     C**** SECOND '
+     C     PNA(X)        IFEQ      ''''
+     C     *IN41         ANDEQ     '1'
+     C                   SETON                                        42
+     C                   END
+     C**** FIRST '
+     C     PNA(X)        IFEQ      ''''
+     C                   SETON                                        41
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   END
+     C***** MOVING BLANKS
+     C*
+     C     *IN41         IFEQ      '0'
+     C     *IN40         ANDEQ     '0'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   END
+     C     *IN41         IFEQ      '1'
+     C     *IN42         ANDEQ     '1'
+     C     *IN40         ANDEQ     '0'
+     C                   MOVE      *BLANKS       PNA(X)
+     C                   END
+     C                   ENDDO
+     C                   MOVEA     PNA           DSSTMT
+     C                   EVAL      DSSTMT = %TRIM(DSSTMT)
+     C                   MOVEL     DSSTMT        CLDPG
+     C                   EXSR      SR065
+     C                   EXSR      SR070
+     C                   EXSR      SR080
+     C                   ENDIF
+     C                   ENDSR
+     C****************************************************
+     C** SUBROUTINE FOR *FILES IN RPGLE AND RPG   SR050
+     C*****************************************************
+     C     SR050         BEGSR
+     C
+     C     *IN15         IFEQ      '1'
+     C     AST           ANDNE     '*'
+     C     AST           ANDNE     ' '
+     C*
+     C     CTYPEV        IFEQ      'RPGLE     '
+     C                   MOVEL     CDPFLE        CLDPG
+     C                   MOVEL     FM            FDSK
+     C                   END
+     C     CTYPEV        IFEQ      'RPG       '
+     C                   MOVEL     CDPFRG        CLDPG
+     C                   MOVEL     FM2           FDSK
+     C                   END
+     C                   EXSR      SR065
+     C                   EXSR      SR070
+     C                   EXSR      SR080
+     C                   END
+     C                   ENDSR
+     C****************************************************************
+     C**   SUBROUTINE TO GET COMMANDS SR060
+     C****************************************************************
+     C     SR060         BEGSR
+     C                   MOVEL     CLCMD         CLLPG
+     C                   MOVEL     CLCMD         CLDPG
+     C                   MOVEL     CMDTXT        CLLDES
+
+     C                   MOVEL     *BLANKS       ATTRLL
+     C*                  MOVEL     CMD           ATTRLL
+     C                   EXSR      SR065
+     C                   EXSR      SR070
+     C                   EXSR      SR080
+     C                   ENDSR
+     C******************************************************
+     C*    RETRIEVES OBJECT DESCRIPTION  CALLING PROG SR065
+     C******************************************************
+     C     SR065         BEGSR
+     C                   MOVEL     CLLPG         PGM              10
+     C                   MOVEL     *BLANKS       OBJTPV
+     C     CMD           IFEQ      'CMD'
+     C                   MOVEL     '*CMD'        OBJTPV            8
+     C                   ELSE
+     C                   MOVEL     '*PGM'        OBJTPV            8
+     C                   END
+     C*
+     C                   CALL      'PGSRCA102A'
+     C                   PARM                    PGM              10
+     C                   PARM                    OBJTPV            8
+     C                   PARM                    LIBR             10
+     C                   PARM                    DES              50
+     C                   PARM                    OBJATR           10
+     C                   MOVEL     OBJTPV        TYPELL
+     C                   ENDSR
+     C******************************************************
+     C*    RETRIEVES OBJECT DESCRIPTION  CALLED PROG SR070
+     C******************************************************
+     C     SR070         BEGSR
+     C                   MOVEL     CLDPG         PGM              10
+     C                   MOVEL     *BLANKS       OBJTPV
+     C     *IN15         IFEQ      '1'
+     C                   MOVEL     '*FILE'       OBJTPV            8
+     C                   ELSE
+     C                   MOVEL     '*PGM'        OBJTPV            8
+     C                   END
+     C*
+     C                   CALL      'PGSRCA102A'
+     C                   PARM                    PGM              10
+     C                   PARM                    OBJTPV            8
+     C                   PARM                    LIBR             10
+     C                   PARM                    DES              50
+     C                   PARM                    OBJATR           10
+     C                   MOVEL     DES           CLDDES
+     C                   MOVEL     OBJATR        ATTRLD
+     C                   MOVEL     OBJTPV        TYPELD
+     C                   MOVEL     LIBR          CLDLIB
+     C                   ENDSR
+     C*****************************************************
+     C***** WRITES IN PGMAIN01   SR080
+     C******************************************************
+     C     SR080         BEGSR
+     C     KEY2          KLIST
+     C                   KFLD                    CLLPG
+     C                   KFLD                    TYPELL
+     C                   KFLD                    ATTRLL
+     C                   KFLD                    CLLSRC
+     C                   KFLD                    CLLLIB
+     C                   KFLD                    CLDPG
+     C                   KFLD                    TYPELD
+     C                   KFLD                    ATTRLD
+     C                   KFLD                    CLDSRC
+     C                   KFLD                    CLDLIB
+     C****
+     C     KEY2          CHAIN     PGMAIN01                           81
+     C     *IN81         IFEQ      '1'
+     C                   WRITE     PGM01R
+     C                   END
+     C                   ENDSR
+

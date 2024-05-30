@@ -1,0 +1,8 @@
+             PGM        PARM(&PGOBJE &PGDLIB)
+             DCL        VAR(&PGOBJE) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&PGDLIB) TYPE(*CHAR) LEN(10)
+             DSPDBR     FILE(&PGDLIB/&PGOBJE) OUTPUT(*OUTFILE) +
+                          OUTFILE(SDSDTA/PGPFCM12) OUTMBR(*FIRST *ADD)
+          MONMSG     MSGID(CPF0000 CPF9999)
+ END:        ENDPGM
+

@@ -1,0 +1,24 @@
+             PGM        PARM(&pgSITE)
+             DCL        VAR(&PGSITE) TYPE(*CHAR) LEN(3)
+             DCL        VAR(&LIBR  ) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ANSWER) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&RES) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&SDP2SF  ) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&TFROBJ) TYPE(*CHAR) LEN(10)
+             CALL       PGM(SDP2VAL) PARM(&ANSWER)
+             IF         COND(&ANSWER *EQ N) THEN(GOTO +
+                          CMDLBL(END))
+             CHGVAR     VAR(&TFROBJ) VALUE('TFROBJ' *CAT &PGSITE)
+             CHGVAR     VAR(&SDP2SF) VALUE('SDP2SF' *CAT &PGSITE)
+             CLRLIB     LIB(&TFROBJ)
+             CLRSAVF    FILE(&SDP2SF)
+
+             SNDPGMMSG  MSGID(CPF9898) MSGF(QSYS/QCPFMSG) +
+                          MSGDTA('Save objects to be exported') +
+                          TOPGMQ(*EXT) MSGTYPE(*STATUS)
+             CALL       PGM(PGPFCM1101) PARM(&RES &PGSITE)
+   /*        IF         COND(&RES = 'R') THEN(DO)  */
+             CALL       PGM(PGPFCM1102)
+   /*        ENDDO   */
+ END:        ENDPGM
+

@@ -1,0 +1,75 @@
+     F********************************************************************
+     F*            E A T O N    C U T L E R - H A M M E R                *
+     F********************************************************************
+     F* FUNCTION    -  Writes DSPDBR logical files to PGPFCM10           *
+     F* PROGRAM ID  -  PGPFCM1002                                        *
+     F* CODED BY    -  FAKHIR AHMAD                                      *
+     F* DATE        -  JULY 2003                                         *
+     F* PROCEDURES  -                                                    *
+     F********************************************************************
+     FPGPFCM05  IF   E           K DISK
+     FPGPFCM11  UF A E           K DISK
+     FPGPFCM12  IF   F  132        DISK
+     IPGPFCM12  NS
+     I                                  1   11  PFILE
+     I                                 12   21  PLIB
+     I                                 60   69  LFILE
+     I                                 70   79  LLIB
+     C     KEY           KLIST
+     C                   KFLD                    KOBJ             10
+     C                   KFLD                    KTYPE             8
+     C                   KFLD                    KATTR            10
+     C     KEY2          KLIST
+     C                   KFLD                    KSITE             3
+     C                   KFLD                    KOBJ             10
+     C                   KFLD                    KTYPE             8
+     C                   KFLD                    KATTR            10
+     C     KEY3          KLIST
+     C                   KFLD                    KOBJ3            10
+     C                   KFLD                    KTYPE3            8
+     C                   KFLD                    KATTR3           10
+     C                   EXSR      SR010
+     C                   MOVE      '1'           *INLR
+     C***************************************************
+     C**           Main Routine
+     C****************************************************
+     C     SR010         BEGSR
+     C                   READ      PGPFCM11
+     C                   MOVEL     PGSITE        KSITE
+     C     *IN10         DOWEQ     '0'
+     C                   READ      PGPFCM12                               10
+     C     *IN10         IFEQ      '0'
+     C                   EXSR      SR020
+     C                   ENDIF
+     C                   ENDDO
+     C                   ENDSR
+     C***************************************************
+     C***WRITE LOGICAL FILE IN PGPFCM10
+     C****************************************************
+     C     SR020         BEGSR
+     C                   MOVEL     PFILE         KOBJ
+     C                   MOVEL     '*FILE'       KTYPE
+     C                   MOVEL     'PF'          KATTR
+     C     KEY           CHAIN     PGPFCM11
+     C                   MOVEL     PGPLIB        PRDLIB           10
+     c***
+     C                   MOVEL     LFILE         KOBJ
+     C                   MOVEL     '*FILE'       KTYPE
+     C                   MOVEL     'LF'          KATTR
+     C     KEY           CHAIN     PGPFCM11                           22
+     C                   IF        *IN22 = *ON
+     C                   CLEAR                   PGPFCMR11
+
+     C                   MOVEL     KSITE         PGSITE
+     C                   MOVEL     LFILE         PGOBJE
+     C                   MOVEL     '*FILE'       PGOBJT
+     C                   MOVEL     'LF'          PGOBJA
+     C                   MOVEL     LLIB          PGDLIB
+     C     KEY2          CHAIN     PGPFCM05                           23
+     C                   IF        PGOBJE <> ' '
+     C                   MOVEL     PRDLIB        PGPLIB
+     C                   WRITE     PGPFCMR11
+     C                   ENDIF
+     C                   ENDIF
+     C                   ENDSR
+

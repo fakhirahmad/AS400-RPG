@@ -1,0 +1,20 @@
+             PGM
+             DCL        VAR(&LIBR  ) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&ANSWER) TYPE(*CHAR) LEN(1)
+             CALL       PGM(SDP2VAL) PARM(&ANSWER)
+             IF         COND(&ANSWER *EQ N) THEN(GOTO +
+                          CMDLBL(END))
+
+             CLRPFM     FILE(PGPFCM11)
+             CLRPFM     FILE(PGPFCM12)
+
+             SNDPGMMSG  MSGID(CPF9898) MSGF(QSYS/QCPFMSG) +
+                          MSGDTA('Select objects to be exported') +
+                          TOPGMQ(*EXT) MSGTYPE(*STATUS)
+             CALL       PGM(PGPFCM1001)
+             CALL       PGM(PGPFCM1002)
+             CALL       PGM(PGPFCM1502)
+             CALL       PGM(PGPFCM1503)
+
+ END:        ENDPGM
+

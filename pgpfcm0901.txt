@@ -1,0 +1,132 @@
+     F********************************************************************
+     F*            E A T O N    C U T L E R - H A M M E R                *
+     F********************************************************************
+     F* FUNCTION    -  SELECT OBJECTS TO BE RESTORED                     *
+     F* PROGRAM ID  -  PGPFCM0901                                        *
+     F* CODED BY    -  FAKHIR AHMAD                                      *
+     F* DATE        -  JULY  2003                                    *
+     F* PROCEDURES  -                                                    *
+     F********************************************************************
+     FPGPFCM09FMCF   E             WORKSTN
+     F                                     SFILE(SUBFIL:COUNT)
+     F                                     SFILE(SUBFIL2:COUNT)
+     F**  SCREEN FILE
+     FPGPFCM10  UF   E           K DISK
+     F**  OBJECTS WITH DIFFERENCES FILE PGPFCM10
+     DDATE_DS          DS
+     DDATE                     1      8
+     DMONTH                    1      2
+     DSEP1                     3      3
+     DDAY                      4      5
+     DSEP2                     6      6
+     DYEAR                     7      8
+
+     C     KEY           KLIST
+     C                   KFLD                    KOBJ             10
+     C                   KFLD                    KTYPE             8
+     C                   KFLD                    KATTR            10
+     C                   EXSR      SR010
+     C                   MOVE      '1'           *INLR
+     C***************************************************
+     C***********  LOADING SUBFILE
+     C****************************************************
+     C     SR010         BEGSR
+     C     *IN03         DOWEQ     '0'
+     C                   SETOFF                                       3132
+     C                   SETON                                        34
+     C                   WRITE     FILCTL
+     C                   WRITE     FILCTL2
+     C                   Z-ADD     0             COUNT             4 0
+     C*
+     C*
+     C     *LOVAL        SETLL     PGPFCM10
+
+     C     *IN10         DOWEQ     *OFF
+     C                   READ      PGPFCM10                               10
+     C     *IN10         IFEQ      *OFF
+     c                   move      '1'           *in12
+     C                   MOVEL     PGOBJE        SOBJ
+     C                   MOVEL     PGOBJT        STYPE
+     C                   MOVEL     PGOBJA        SATTR
+     C                   MOVEL     PGODSC        SDESC
+     C                   MOVEL     PGDLIB        SDEVLIB
+     C                   MOVEL     PGPLIB        SPRDLIB
+     C                   MOVEL     PGDATA        SDATA
+     C                   EVAL      MONTH = %SUBST(PGPCDT:1:2)
+     C                   EVAL      DAY = %SUBST(PGPCDT:3:2)
+     C                   EVAL      YEAR = %SUBST(PGPCDT:5:2)
+     C                   EVAL      SEP1 = '/'
+     C                   EVAL      SEP2 = '/'
+     C                   MOVEL     DATE_DS       SDATE
+     C                   MOVEL     PGDOBO        SOWN
+     C                   MOVEL     PGDBDS        SSIZE
+     C                   MOVEL     PGREST        SREST
+     C                   MOVEL     PGPFDF        SPGFDF
+     C*
+     C                   ADD       1             COUNT
+     C                   WRITE     SUBFIL2
+     C                   WRITE     SUBFIL
+     C                   ENDIF
+     C                   ENDDO
+
+     C                   SETON                                        3132
+     C                   IF        *IN12 = '0'
+     C                   SETON                                        34
+     C                   ELSE
+     C                   SETOFF                                       34
+     C                   ENDIF
+     C                   WRITE     SCR99
+     C                   EXFMT     FILCTL2
+     C                   IF        *IN07 = '1'
+     C                   EXFMT     FILCTL
+     C                   END
+     C                   IF        *IN21 = '1'  OR *IN22 = '1'
+     C                   EXSR      SR030
+     C                   ENDIF
+     C                   MOVE      '0'           *IN10
+     C                   IF        *IN12 = '1'
+     C                   EXSR      SR020
+     C                   ENDIF
+     C                   ENDDO
+     C                   ENDSR
+     C***************************************************
+     C***********  WRITING SELECTED 'Y"
+     C****************************************************
+     C     SR020         BEGSR
+     C                   MOVE      '0'           *IN25
+     C     *IN25         DOWEQ     '0'
+     C                   READC     SUBFIL2                                25
+     C     *IN25         IFEQ      '0'
+     C                   MOVEL     SOBJ          KOBJ
+     C                   MOVEL     STYPE         KTYPE
+     C                   MOVEL     SATTR         KATTR
+     C     KEY           CHAIN     PGPFCM10
+     C                   MOVE      SREST         PGREST
+     C                   UPDATE    PGPFCMR10
+     C                   ENDIF
+     C                   ENDDO
+     C                   ENDSR
+     ************
+     C***************************************************
+     C***********  WRITING ALL SELECTED DESELECTED
+     C****************************************************
+     C     SR030         BEGSR
+     C     *LOVAL        SETLL     PGPFCM10
+     C                   MOVE      '0'           *IN30
+
+     C     *IN30         DOWEQ     *Off
+     C                   READ      PGPFCM10                               30
+     C     *IN30         IFEQ      *OFF
+     C                   IF        *IN21 = '1'
+     C                   MOVE      'Y'           PGREST
+     C                   END
+     C                   IF        *IN22 = '1'
+     C                   MOVE      *BLANKS       PGREST
+     C                   END
+     C                   UPDATE    PGPFCMR10
+     C                   ENDIF
+     C                   ENDDO
+     C                   MOVE      '0'           *IN21
+     C                   MOVE      '0'           *IN22
+     C                   ENDSR
+

@@ -1,0 +1,112 @@
+     F********************************************************************
+     F*            E A T O N    C U T L E R - H A M M E R                *
+     F********************************************************************
+     F* FUNCTION    -  Create list of objects to be restored             *
+     F* PROGRAM ID  -  PGPFCM1001                                        *
+     F* CODED BY    -  FAKHIR AHMAD                                      *
+     F* DATE        -  JULY 2003                                         *
+     F* PROCEDURES  -                                                    *
+     F********************************************************************
+     FPGPFCM10  IF   E           K DISK
+     FPGPFCM05  IF   E           K DISK
+     FPGPFCM11  UF A E           K DISK
+     FPGMAINL2  IF   E           K DISK
+     FPGPFCM10L1IF   E           K DISK
+     F                                     RENAME(PGPFCMR10:PGMFMT01)
+     F**  OBJECTS WITH DIFFERENCES FILE PGPFCM10
+     F**  OBJECTS TO BE RESTORED FILE PGPFCM11
+     F**  SOURCES BEING USED FILE PGMAIN01
+     C*
+     C     KEY           KLIST
+     C                   KFLD                    KOBJ             10
+     C                   KFLD                    KTYPE             8
+     C                   KFLD                    KATTR            10
+     C     KEY2          KLIST
+     C                   KFLD                    KOBJ2            10
+     C                   KFLD                    KTYPE2            8
+     C                   KFLD                    KATTR2           10
+     C**
+     C     KEY3          KLIST
+     C                   KFLD                    KSITE             3
+     C                   KFLD                    KOBJ2            10
+     C                   KFLD                    KTYPE2            8
+     C                   KFLD                    KATTR2           10
+     C**
+     C                   EXSR      SR010
+     C                   MOVE      '1'           *INLR
+     C***************************************************
+     C***********  Main Routine
+     C****************************************************
+     C     SR010         BEGSR
+     C     *IN10         DOWEQ     '0'
+     C                   READ      PGPFCM10                               10
+     C                   MOVEL     PGSITE        KSITE
+     C     *IN10         IFEQ      '0'
+     C                   EXSR      SR020
+     C                   IF        PGOBJA = 'PF' AND PGREST = 'Y'
+     C                   EXSR      SR030
+     C                   ENDIF
+     C     PGOBJA        IFEQ      'PF'
+     C     PGOBJA        OREQ      'LF'
+     C     PGOBJA        OREQ      'DSPF'
+     C     PGREST        IFEQ      'Y'
+     C                   EXSR      SR040
+     C                   ENDIF
+     C                   ENDIF
+     C                   ENDIF
+     C                   ENDDO
+     C                   ENDSR
+     C***************************************************
+     C*  WRITES SELECTED OBJECT TO  PGPFCM11
+     C****************************************************
+     C     SR020         BEGSR
+     C                   MOVEL     PGOBJE        KOBJ
+     C                   MOVEL     PGOBJT        KTYPE
+     C                   MOVEL     PGOBJA        KATTR
+     C     KEY           CHAIN     PGPFCM11                           21
+     C                   IF        *IN21 = *ON
+     C                   IF        PGREST = 'Y'
+     C                   WRITE     PGPFCMR11
+     C                   ENDIF
+     C                   ENDIF
+     C                   ENDSR
+     C***************************************************
+     C***DSPDBR  LOGICAL FILES OF THE PHYSICAL FILES
+     C****************************************************
+     C     SR030         BEGSR
+     C                   CALL      'PGPFCM10A'
+     C                   PARM                    PGOBJE
+     C                   PARM                    PGDLIB
+     C                   ENDSR
+     C***************************************************
+     C*  ADDS PROGRAMS USING THE PF, LF OR DSPF
+     C****************************************************
+     C     SR040         BEGSR
+     C                   MOVEL     PGOBJE        KOBJ
+     C                   MOVEL     PGOBJT        KTYPE
+     C                   MOVEL     PGOBJA        KATTR
+     C     KEY           SETLL     PGMAINL2
+     c                   EVAL      *IN41 = *OFF
+     C     *IN41         DOWEQ     '0'
+     C     KEY           READE     PGMAINL2                               41
+     C     *IN41         IFEQ      '0'
+     C                   MOVEL     CLLPG         KOBJ2
+     C                   MOVEL     TYPELL        KTYPE2
+     C                   MOVEL     ATTRLL        KATTR2
+     C     KEY2          CHAIN     PGPFCM10L1                         45
+     C                   IF        *IN45 = *ON
+     C     KEY2          CHAIN     PGPFCM11                           42
+     C                   IF        *IN42 = *ON
+     C                   CLEAR                   PGPFCMR11
+     C                   MOVEL     KSITE         PGSITE
+     C                   MOVEL     CLLPG         PGOBJE
+     C                   MOVEL     TYPELL        PGOBJT
+     C                   MOVEL     ATTRLL        PGOBJA
+     C     KEY3          CHAIN     PGPFCM05                           46
+     C                   WRITE     PGPFCMR11
+     C                   ENDIF
+     C                   ENDIF
+     c                   ENDIF
+     C                   ENDDO
+     C                   ENDSR
+

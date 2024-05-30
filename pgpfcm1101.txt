@@ -1,0 +1,95 @@
+     F********************************************************************
+     F*            E A T O N    C U T L E R - H A M M E R                *
+     F********************************************************************
+     F* FUNCTION    -  SELECT OBJECTS TO BE RESTORED                     *
+     F* PROGRAM ID  -  PGPFCM1101                                        *
+     F* CODED BY    -  FAKHIR AHMAD                                      *
+     F* DATE        -  JULY 2003                                    *
+     F* PROCEDURES  -                                                    *
+     F********************************************************************
+     FPGPFCM11FMCF   E             WORKSTN
+     F                                     SFILE(SUBFIL:COUNT)
+     F                                     SFILE(SUBFIL2:COUNT)
+     F**  SCREEN FILE
+     FPGPFCM11  IF   E           K DISK
+     F**  OBJECTS TO BE RESTORED FILE PGPFCM11
+     DDATE_DS          DS
+     DDATE                     1      8
+     DMONTH                    1      2
+     DSEP1                     3      3
+     DDAY                      4      5
+     DSEP2                     6      6
+     DYEAR                     7      8
+
+     C     *ENTRY        PLIST
+     C                   PARM                    RES               1
+     C                   PARM                    SITE              3
+     C     KEY           KLIST
+     C                   KFLD                    KOBJ             10
+     C                   KFLD                    KTYPE             8
+     C                   KFLD                    KATTR            10
+     C                   EXSR      SR010
+     C                   MOVE      '1'           *INLR
+     C***************************************************
+     C***********  LOADING SUBFILE
+     C****************************************************
+     C     SR010         BEGSR
+     C                   SETOFF                                       3132
+     C                   SETON                                        34
+     C                   WRITE     FILCTL
+     C                   WRITE     FILCTL2
+     C                   Z-ADD     0             COUNT             4 0
+     C*
+     C*
+     C     *LOVAL        SETLL     PGPFCM11
+
+     C     *IN10         DOWEQ     *OFF
+     C                   READ      PGPFCM11                               10
+     C     *IN10         IFEQ      *OFF
+     c                   move      '1'           *in12
+     C                   MOVEL     PGOBJE        SOBJ
+     C                   MOVEL     PGOBJT        STYPE
+     C                   MOVEL     PGOBJA        SATTR
+     C                   MOVEL     PGODSC        SDESC
+     C                   MOVEL     PGDLIB        SDEVLIB
+     C                   MOVEL     PGPLIB        SPRDLIB
+     C                   MOVEL     PGDATA        SDATA
+     C                   EVAL      MONTH = %SUBST(PGPCDT:1:2)
+     C                   EVAL      DAY = %SUBST(PGPCDT:3:2)
+     C                   EVAL      YEAR = %SUBST(PGPCDT:5:2)
+     C                   EVAL      SEP1 = '/'
+     C                   EVAL      SEP2 = '/'
+     C                   MOVEL     DATE_DS       SDATE
+     C                   MOVEL     PGDOBO        SOWN
+     C                   MOVEL     PGDBDS        SSIZE
+     C                   MOVEL     PGREST        SREST
+     C                   MOVEL     PGPFDF        SPGFDF
+     C*
+     C                   ADD       1             COUNT
+     C                   WRITE     SUBFIL2
+     C                   WRITE     SUBFIL
+     C                   END
+     C                   END
+
+     C                   SETON                                        3132
+     C                   IF        *IN12 = '0'
+     C                   SETON                                        34
+     C                   ELSE
+     C                   SETOFF                                       34
+     C                   ENDIF
+     C     *IN03         DOWEQ     '0'
+
+     C                   WRITE     SCR99
+     C                   EXFMT     FILCTL2
+     C                   IF        *IN07 = '1'
+     C                   EXFMT     FILCTL
+     C                   END
+     C*                  IF        *IN23 = '1'
+     C*                  MOVE      '1'           *IN03
+     C*                  MOVE      'R'           RES
+     C*                  ENDIF
+     C                   ENDDO
+     C                   MOVEL     PGSITE        SITE
+     c**
+     C                   ENDSR
+

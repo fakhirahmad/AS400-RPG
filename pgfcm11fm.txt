@@ -1,0 +1,135 @@
+     A*%%TS  SD  20030924  095957  AHMADF      REL-V5R1M0  5722-WDS
+     A*----------------------------------------------------------------
+     A*            10:21:18    KEHRERW     REL-R07M00  5714-UT1
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      PRINT
+     A*            10:21:18    KEHRERW     REL-R07M00  5714-UT1
+     A          R SUBFIL                    SFL
+     A*%%TS  SD  20030815  112100  AHMADF      REL-V5R1M0  5722-WDS
+     A            SOBJ          10A  O  8  2
+     A            STYPE          6A  O  8 13
+     A            SATTR          6A  O  8 20
+     A            SDESC         25A  O  8 27
+     A            SDATE          8A  O  8 53
+     A            SOWN           8A  O  8 62
+     A            SSIZE          8Y 0O  8 71EDTCDE(3)
+     A            SREST          1A  O  8 80
+     A          R FILCTL                    SFLCTL(SUBFIL)
+     A*%%TS  SD  20030815  120202  AHMADF      REL-V5R1M0  5722-WDS
+     A                                      CF03(03 'EXIT')
+     A                                      CF07(07 'NEXT SCREEN')
+     A                                      OVERLAY
+     A  31                                  SFLDSP
+     A  32                                  SFLDSPCTL
+     A  34                                  SFLCLR
+     A                                      SFLSIZ(9999)
+     A                                      SFLPAG(0013)
+     A                                  1  2DATE
+     A                                      EDTCDE(Y)
+     A                                  1 28'OBJECTS TO BE EXPORTED'
+     A                                      DSPATR(HI)
+     A                                      DSPATR(UL)
+     A                                  1 72TIME
+     A                                  2  2'PGPFCM11FM'
+     A                                  2 73'FILCTL'
+     A                                  5 53'CREATE'
+     A                                      COLOR(BLU)
+     A                                  5 72'OBJECT'
+     A                                      COLOR(BLU)
+     A                                  6 14' TYP'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 32'DESCRIPTION'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 63'OWNER'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 21'ATTR'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 54'DATE'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  5 62'OBJECT'
+     A                                      COLOR(BLU)
+     A                                  6 73'SIZE'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6  4'OBJECT'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 78'RES'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A          R SCR99
+     A*%%TS  SD  20030815  115651  AHMADF      REL-V5R1M0  5722-WDS
+     A                                 23  3'F3 = EXIT'
+     A                                      COLOR(PNK)
+     A                                 23 16'F07 = DETAILS'
+     A                                      COLOR(PNK)
+     A*         R SUBFIL                    SFL
+     A          R SUBFIL2                   SFL
+     A*%%TS  SD  20030924  095957  AHMADF      REL-V5R1M0  5722-WDS
+     A            SOBJ          10A  O  8  2
+     A            STYPE          6A  O  8 13
+     A            SATTR          6A  O  8 20
+     A            SDESC         25A  O  8 27
+     A            SREST          1A  O  8 75
+     A            SDATA          1A  O  8 77
+     A            SDEVLIB       10A  O  8 53
+     A            SPRDLIB       10A  O  8 64
+     A            SPGFDF         1   O  8 79
+     A          R FILCTL2                   SFLCTL(SUBFIL2)
+     A*%%TS  SD  20030924  095957  AHMADF      REL-V5R1M0  5722-WDS
+     A                                      SFLSIZ(9999)
+     A                                      SFLPAG(0013)
+     A                                      CF03(03 'EXIT')
+     A                                      CF07(07 'NEXT SCREEN')
+     A                                      OVERLAY
+     A  31                                  SFLDSP
+     A  32                                  SFLDSPCTL
+     A  34                                  SFLCLR
+     A                                  1  2DATE
+     A                                      EDTCDE(Y)
+     A                                  1 28'OBJECTS TO BE EXPORTED'
+     A                                      DSPATR(HI)
+     A                                      DSPATR(UL)
+     A                                  1 72TIME
+     A                                  2  2'PGPFCM11FM'
+     A                                  2 73'FILCTL'
+     A                                  5 55'DEV'
+     A                                      COLOR(BLU)
+     A                                  5 76'TF'
+     A                                      COLOR(BLU)
+     A                                  6 14' TYP'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 32'DESCRIPTION'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 66'LIB'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 21'ATTR'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 55'LIB'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  5 65'PROD'
+     A                                      COLOR(BLU)
+     A                                  6 73'RS'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6  4'OBJECT'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 76'DT'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+     A                                  6 79'DF'
+     A                                      DSPATR(UL)
+     A                                      COLOR(BLU)
+

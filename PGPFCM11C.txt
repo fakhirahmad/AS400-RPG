@@ -1,0 +1,24 @@
+             PGM        PARM(&PGSITE)
+             DCL        VAR(&PGSITE     ) TYPE(*CHAR) LEN(3)
+             DCL        VAR(&SDP2SF  ) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&TFROBJ) TYPE(*CHAR) LEN(10)
+             CHGVAR     VAR(&SDP2SF) VALUE('SDP2SF' *CAT &PGSITE)
+             CHGVAR     VAR(&TFROBJ) VALUE('TFROBJ' *CAT &PGSITE)
+             CLRSAVF    FILE(SAVF)
+             SAVOBJ     OBJ(PGPFCM11) LIB(SDSDTA) DEV(*SAVF) +
+                          OBJTYPE(*FILE) SAVF(SAVF)
+             RSTOBJ     OBJ(PGPFCM11) SAVLIB(SDSDTA) DEV(*SAVF) +
+                          OBJTYPE(*FILE) SAVF(SAVF) MBROPT(*ALL) +
+                          ALWOBJDIF(*ALL) RSTLIB(&TFROBJ)
+             CLRSAVF    FILE(SAVF)
+             SAVOBJ     OBJ(PGPFCM11L1) LIB(SDSDTA) DEV(*SAVF) +
+                          OBJTYPE(*FILE) SAVF(SAVF)
+             RSTOBJ     OBJ(PGPFCM11L1) SAVLIB(SDSDTA) DEV(*SAVF) +
+                          OBJTYPE(*FILE) SAVF(SAVF) MBROPT(*ALL) +
+                          ALWOBJDIF(*ALL) RSTLIB(&TFROBJ)
+             CRTSAVF    FILE(SDSDTA/&SDP2SF)
+          MONMSG     MSGID(CPF0000 CPF9999)
+             CLRSAVF    FILE(&SDP2SF)
+             SAVOBJ     OBJ(*ALL) LIB(&TFROBJ) DEV(*SAVF) SAVF(&SDP2SF)
+ END:        ENDPGM
+
