@@ -1,0 +1,105 @@
+     H
+     *Changes Option ADD UPDATE DELETE employee
+     FEMPFILE   UF A E           K DISK
+     FFAKSUBDF6 CF   E             WORKSTN
+     F                                     SFILE(SUBFIL:CNT)
+
+     DCNT              S              4S 0
+
+
+
+     *Main Program
+       DOW   *IN03 = '0';
+       eval cnt=0;
+       eval option = ' ';
+       ExSr SR0010 ;
+       ExSr SR0020;
+       ExSr SR0030;
+       Exsr SR0040;
+       enddo;
+       *INLR = *ON;
+
+     *SubRoutine to Clear Data from SubFile
+       BegSr SR0010;
+           *In50 = *OFF;
+           write subctl ;
+           *IN50 = *ON;
+       EndSr;
+
+     *SubRoutine to Load Data into SubFile
+       BegSr SR0020;
+           Setll *LOVAL EMPFILE;
+           Read EMPFILE;
+           DoW NOT %EOF(EMPFILE);
+               CNT = CNT + 1;
+               Write SUBFIL;
+               Read EMPFILE;
+           EndDo;
+       EndSr;
+
+     *Subroutine to Display Subfile Data
+       BegSr SR0030;
+      *Dow *IN03 =  *OFF;
+           Write FOOTER;
+           EXFMT SUBCTL ;
+      *EndDo;
+       EndSr;
+
+     *SubRoutine to Display option for employee record
+       BegSr SR0040;
+
+           ReadC SUBFIL;
+           IF OPTION = 'U';
+           exsr SR0050;
+           endif;
+           IF OPTION = 'D';
+           exsr SR0060;
+           endif;
+           IF *IN06  = '1';
+           exsr SR0070;
+           endif;
+           endsr;
+
+       BegSr SR0050;
+
+     *SubRoutine to Update selected employee record
+           empnov = empno;
+           empnamev = empname;
+           depnov = depno;
+           EXFMT UPDEMP ;
+           chain empnov empfile;
+               If %FOUND(EMPFILE);
+               empname = empnamev;
+               depno = depnov;
+           UPDATE empfmt;
+               endif;
+       EndSr;
+
+       BegSr SR0060;
+
+     *SubRoutine to Delete selected employee record
+           empnov = empno;
+           empnamev = empname;
+           depnov = depno;
+           EXFMT DLTEMP ;
+           chain empnov empfile;
+               If %FOUND(EMPFILE)and *IN12 = '0';
+           delete  empfmt;
+               endif;
+       EndSr;
+
+       BegSr SR0070;
+
+     *SubRoutine to ADD    selected employee record
+           eval empnov= 0;
+           eval empnamev= ' ';
+           eval depnov= ' ';
+           EXFMT ADDEMP ;
+           chain empnov empfile;
+               If not %FOUND(EMPFILE);
+               empno  = empnov;
+               empname  = empnamev;
+               depno = depnov ;
+           write  empfmt;
+               endif;
+       EndSr;

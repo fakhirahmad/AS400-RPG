@@ -1,0 +1,86 @@
+     A*%%TS  SD  20251022  121259  FAKHIR      REL-V7R4M0  5770-WDS
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A          R SUBFIL                    SFL
+     A*%%TS  SD  20251020  155742  FAKHIR      REL-V7R4M0  5770-WDS
+     A            EMPNO     R        O  8  9REFFLD(EMPFMT/EMPNO FAKHIR/EMPFILE)
+     A            EMPNAME   R        O  8 34REFFLD(EMPFMT/EMPNAME FAKHIR/EMPFIL-
+     A                                      E)
+     A            OPTION         1A  B  8  3
+     A            DEPNO          3   O  8 71
+     A          R SUBCTL                    SFLCTL(SUBFIL)
+     A*%%TS  SD  20251020  155742  FAKHIR      REL-V7R4M0  5770-WDS
+     A                                      SFLSIZ(0100)
+     A                                      SFLPAG(0010)
+     A                                      CF03(03 'EXIT')
+     A                                      CF06(06 'ADD')
+     A                                      OVERLAY
+     A  50                                  SFLDSP
+     A  50                                  SFLDSPCTL
+     A N50                                  SFLCLR
+     A  50                                  SFLEND(*MORE)
+     A*           RCDNBR         4S 0H      SFLRCDNBR(CURSOR)
+     A                                  2  5DATE
+     A                                      EDTCDE(Y)
+     A                                      COLOR(WHT)
+     A                                      DSPATR(UL)
+     A                                  2 67TIME
+     A                                      DSPATR(UL)
+     A                                      COLOR(WHT)
+     A                                  2 36USER
+     A                                      DSPATR(UL)
+     A                                      COLOR(WHT)
+     A                                  4 33'Employee Data'
+     A                                      COLOR(TRQ)
+     A                                      DSPATR(UL)
+     A                                  6 34'Employee Name'
+     A                                  6 10'Emp No'
+     A                                  6  2'Opt'
+     A                                  6 70'Depno'
+     A          R FOOTER
+     A*%%TS  SD  20251020  164335  FAKHIR      REL-V7R4M0  5770-WDS
+     A                                 22  7'F3 = Exit'
+     A                                      COLOR(BLU)
+     A                                 22 22'F6 = Add'
+     A                                      COLOR(BLU)
+     A                                 22 36'D = Delete'
+     A                                      COLOR(BLU)
+     A                                 22 49'U= Update'
+     A                                      COLOR(BLU)
+     A          R ADDEMP
+     A*%%TS  SD  20251020  121903  FAKHIR      REL-V7R4M0  5770-WDS
+     A                                  4  9'EMPLOYEE NO'
+     A                                  7  9'EMPLOYEE NAME'
+     A                                  1 28'ADD EMPLOYEE RECORD'
+     A                                      COLOR(WHT)
+     A                                      DSPATR(UL)
+     A                                 10  9'DEPARTMENT NO'
+     A            EMPNOV         5S 0B  4 28
+     A            EMPNAMEV      30A  B  7 28
+     A            DEPNOV         3A  B 10 29
+     A          R UPDEMP
+     A*%%TS  SD  20251015  102854  FAKHIR      REL-V7R4M0  5770-WDS
+     A                                  4  9'EMPLOYEE NO'
+     A                                  7  9'EMPLOYEE NAME'
+     A                                  1 28'UPDATE EMPLOYEE RECORD'
+     A                                      COLOR(WHT)
+     A                                      DSPATR(UL)
+     A                                 10  9'DEPARTMENT NO'
+     A            EMPNOV         5S 0O  4 28
+     A            EMPNAMEV      30A  B  7 28
+     A            DEPNOV         3A  B 10 29
+     A          R DLTEMP
+     A*%%TS  SD  20251022  121259  FAKHIR      REL-V7R4M0  5770-WDS
+     A                                      CF12(12 'Exit')
+     A                                  4  9'EMPLOYEE NO'
+     A                                  7  9'EMPLOYEE NAME'
+     A                                  1 28'DELETE EMPLOYEE RECORD'
+     A                                      COLOR(WHT)
+     A                                      DSPATR(UL)
+     A                                 10  9'DEPARTMENT NO'
+     A            EMPNOV         5S 0O  4 28
+     A            EMPNAMEV      30A  B  7 28
+     A            DEPNOV         3A  B 10 29
+     A                                 19 10'Enter  = Confirm Delete'
+     A                                 19 38'F12 = Return'
+     A                                 19 51' '
