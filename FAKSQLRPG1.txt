@@ -1,0 +1,60 @@
+     H
+     FEMPFILE   IP   E           K DISK
+     FEMPPRT    O    E             PRINTER OFLIND(*IN11)
+     d DataDS          ds
+     d depNo                          3a
+     d depname                       30a
+     d depcost                        5a
+
+       /free
+
+          //Set SQL options
+       exec sql
+        SET OPTION commit=*none;
+
+
+
+       //Read more than one record from the SQL table
+       //Declare the cursor
+         exec sql
+        Declare C1 cursor for
+          Select *
+         from fakhir/depfile where ddepno = :depno;
+       //Open the cursor
+         exec sql
+          Open C1;
+
+        //Fetch data in a loop
+        Dou sqlcod <> 0;
+          exec sql
+          Fetch C1 INTO :DataDS;
+
+         If (sqlcod <> 0);
+          Leave;
+        Endif;
+
+        //  dsply depno  ;
+        //  dsply empname;
+        //  dsply depname;
+        //  dsply Datads;
+        // dsply depcost;
+        Enddo;
+
+         //Close the cursor
+         exec sql
+          Close C1;
+
+
+        /end-free
+     C                   eval      FDATE = %DATE()
+     C                   eval      FTIME= %TIME()
+     C     *IN03         DOWEQ     '0'
+     C                   write     Header1
+C    C                   write     header2
+     C                   seton                                        03
+     C                   ENDDO
+     C     *IN11         IFeq      *ON
+     C                   write     header1
+     C                   write     header2
+     C                   endif
+     C                   write     detail

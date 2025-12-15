@@ -1,0 +1,40 @@
+     H
+     d empno           S              5a
+     d empname         S             30a
+     d depno           S              3a
+       /free
+
+          //Set SQL options
+       exec sql
+        SET OPTION commit=*none;
+
+
+
+       //Read more than one record from the SQL table
+       //Declare the cursor
+         exec sql
+        Declare C1 cursor for
+       Select * from fakhir/empfile where depno = '900';
+       //Open the cursor
+         exec sql
+          Open C1;
+
+        //Fetch data in a loop
+        Dou sqlcod <> 0;
+          exec sql
+          Fetch C1 INTO :empno , :empname,:depno ;
+         If (sqlcod <> 0);
+          Leave;
+        Endif;
+        dsply  empno  ;
+        dsply  empname;
+        dsply  depno  ;
+        Enddo;
+
+         //Close the cursor
+         exec sql
+          Close C1;
+
+
+        /end-free
+     C                   seton                                        LR
